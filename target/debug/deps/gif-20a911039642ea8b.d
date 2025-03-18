@@ -1,0 +1,12 @@
+/Users/kitipholk/Desktop/Rust/project/target/debug/deps/libgif-20a911039642ea8b.rmeta: /Users/kitipholk/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/gif-0.13.1/src/lib.rs /Users/kitipholk/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/gif-0.13.1/src/traits.rs /Users/kitipholk/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/gif-0.13.1/src/common.rs /Users/kitipholk/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/gif-0.13.1/src/reader/mod.rs /Users/kitipholk/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/gif-0.13.1/src/reader/decoder.rs /Users/kitipholk/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/gif-0.13.1/src/reader/converter.rs /Users/kitipholk/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/gif-0.13.1/src/encoder.rs /Users/kitipholk/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/gif-0.13.1/src/../README.md
+
+/Users/kitipholk/Desktop/Rust/project/target/debug/deps/gif-20a911039642ea8b.d: /Users/kitipholk/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/gif-0.13.1/src/lib.rs /Users/kitipholk/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/gif-0.13.1/src/traits.rs /Users/kitipholk/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/gif-0.13.1/src/common.rs /Users/kitipholk/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/gif-0.13.1/src/reader/mod.rs /Users/kitipholk/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/gif-0.13.1/src/reader/decoder.rs /Users/kitipholk/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/gif-0.13.1/src/reader/converter.rs /Users/kitipholk/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/gif-0.13.1/src/encoder.rs /Users/kitipholk/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/gif-0.13.1/src/../README.md
+
+/Users/kitipholk/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/gif-0.13.1/src/lib.rs:
+/Users/kitipholk/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/gif-0.13.1/src/traits.rs:
+/Users/kitipholk/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/gif-0.13.1/src/common.rs:
+/Users/kitipholk/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/gif-0.13.1/src/reader/mod.rs:
+/Users/kitipholk/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/gif-0.13.1/src/reader/decoder.rs:
+/Users/kitipholk/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/gif-0.13.1/src/reader/converter.rs:
+/Users/kitipholk/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/gif-0.13.1/src/encoder.rs:
+/Users/kitipholk/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/gif-0.13.1/src/../README.md:
