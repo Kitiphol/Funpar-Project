@@ -1,6 +1,8 @@
 use std::collections::HashMap;
-use project::luby::luby_algo;
+use project::luby::{luby_algo, luby_seq};
 use project::luby::is_valid_mis;
+use std::time::Instant;
+use rand::seq::SliceRandom;
 
 #[test]
 fn test_normal_graph() {
@@ -13,17 +15,30 @@ fn test_normal_graph() {
         ("G".to_string(), vec![]),
     ]);
 
-    let mis = luby_algo(&graph);
+    let start = Instant::now();
+    let mis_parallel = luby_algo(&graph);
+    let parallel_duration = start.elapsed();
+    println!("Parallel Luby algorithm execution time: {:?}", parallel_duration);
 
-    for node in &mis {
+    for node in &mis_parallel {
         for neighbor in graph.get(node).unwrap_or(&vec![]) {
-            assert!(!mis.contains(neighbor), "Independent set condition violated");
+            assert!(!mis_parallel.contains(neighbor), "Independent set condition violated");
         }
     }
+    println!("Test passed with parallel maximal independent set: {:?}", mis_parallel);
 
-    println!("Test passed with maximal independent set: {:?}", mis);
+    let start = Instant::now();
+    let mis_sequential = luby_seq(&graph);
+    let sequential_duration = start.elapsed();
+    println!("Sequential Luby algorithm execution time: {:?}", sequential_duration);
+
+    for node in &mis_sequential {
+        for neighbor in graph.get(node).unwrap_or(&vec![]) {
+            assert!(!mis_sequential.contains(neighbor), "Independent set condition violated");
+        }
+    }
+    println!("Test passed with sequential maximal independent set: {:?}", mis_sequential);
 }
-
 
 #[test]
 fn test_cycle_graph() {
@@ -31,22 +46,19 @@ fn test_cycle_graph() {
         .map(|i| (format!("{}", i), vec![format!("{}", (i % 20) + 1), format!("{}", (i + 18) % 20 + 1)]))
         .collect();
 
-    let mis = luby_algo(&cycle_graph);
-    assert!(is_valid_mis(&cycle_graph, &mis), "Cycle Graph MIS is invalid: {:?}", mis);
-    println!("Test passed with maximal independent set: {:?}", mis);
-}
+    let start = Instant::now();
+    let mis_parallel = luby_algo(&cycle_graph);
+    let parallel_duration = start.elapsed();
+    println!("Parallel Luby algorithm execution time: {:?}", parallel_duration);
+    assert!(is_valid_mis(&cycle_graph, &mis_parallel), "Cycle Graph MIS is invalid: {:?}", mis_parallel);
+    println!("Test passed with parallel maximal independent set: {:?}", mis_parallel);
 
-#[test]
-fn test_star_graph() {
-    let mut star_graph: HashMap<String, Vec<String>> = HashMap::new();
-    star_graph.insert("Center".to_string(), (1..=15).map(|i| format!("L{}", i)).collect());
-    for i in 1..=15 {
-        star_graph.insert(format!("L{}", i), vec!["Center".to_string()]);
-    }
-
-    let mis = luby_algo(&star_graph);
-    assert!(is_valid_mis(&star_graph, &mis), "Star Graph MIS is invalid: {:?}", mis);
-    println!("Test passed with maximal independent set: {:?}", mis);
+    let start = Instant::now();
+    let mis_sequential = luby_seq(&cycle_graph);
+    let sequential_duration = start.elapsed();
+    println!("Sequential Luby algorithm execution time: {:?}", sequential_duration);
+    assert!(is_valid_mis(&cycle_graph, &mis_sequential), "Cycle Graph MIS is invalid: {:?}", mis_sequential);
+    println!("Test passed with sequential maximal independent set: {:?}", mis_sequential);
 }
 
 #[test]
@@ -66,7 +78,42 @@ fn test_complex_graph() {
         );
     }
 
-    let mis = luby_algo(&complex_graph);
-    assert!(is_valid_mis(&complex_graph, &mis), "Complex Graph MIS is invalid: {:?}", mis);
-    println!("Test passed with maximal independent set: {:?}", mis);
+    let start = Instant::now();
+    let mis_parallel = luby_algo(&complex_graph);
+    let parallel_duration = start.elapsed();
+    println!("Parallel Luby algorithm execution time: {:?}", parallel_duration);
+    assert!(is_valid_mis(&complex_graph, &mis_parallel), "Complex Graph MIS is invalid: {:?}", mis_parallel);
+    println!("Test passed with parallel maximal independent set: {:?}", mis_parallel);
+
+    let start = Instant::now();
+    let mis_sequential = luby_seq(&complex_graph);
+    let sequential_duration = start.elapsed();
+    println!("Sequential Luby algorithm execution time: {:?}", sequential_duration);
+    assert!(is_valid_mis(&complex_graph, &mis_sequential), "Complex Graph MIS is invalid: {:?}", mis_sequential);
+    println!("Test passed with sequential maximal independent set: {:?}", mis_sequential);
+}
+
+
+
+#[test]
+fn test_star_graph() {
+    let mut star_graph: HashMap<String, Vec<String>> = HashMap::new();
+    star_graph.insert("Center".to_string(), (1..=15).map(|i| format!("L{}", i)).collect());
+    for i in 1..=15 {
+        star_graph.insert(format!("L{}", i), vec!["Center".to_string()]);
+    }
+
+    let start = Instant::now();
+    let mis_parallel = luby_algo(&star_graph);
+    let parallel_duration = start.elapsed();
+    println!("Parallel Luby algorithm execution time: {:?}", parallel_duration);
+    assert!(is_valid_mis(&star_graph, &mis_parallel), "Star Graph MIS is invalid: {:?}", mis_parallel);
+    println!("Test passed with parallel maximal independent set: {:?}", mis_parallel);
+
+    let start = Instant::now();
+    let mis_sequential = luby_seq(&star_graph);
+    let sequential_duration = start.elapsed();
+    println!("Sequential Luby algorithm execution time: {:?}", sequential_duration);
+    assert!(is_valid_mis(&star_graph, &mis_sequential), "Star Graph MIS is invalid: {:?}", mis_sequential);
+    println!("Test passed with sequential maximal independent set: {:?}", mis_sequential);
 }

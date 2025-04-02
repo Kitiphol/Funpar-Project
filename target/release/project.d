@@ -1,0 +1,1 @@
+/Users/kitipholk/Desktop/Rust/project/target/release/project: /Users/kitipholk/Desktop/Rust/project/src/lib.rs /Users/kitipholk/Desktop/Rust/project/src/luby.rs /Users/kitipholk/Desktop/Rust/project/src/main.rs
