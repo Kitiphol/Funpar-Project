@@ -1,6 +1,7 @@
 use rand::Rng;
 use rayon::prelude::*;
 use std::collections::{HashMap, HashSet};
+use rand::thread_rng;
 
 type GRAPH = HashMap<String, Vec<String>>;
 
@@ -26,19 +27,25 @@ pub fn luby_algo(graph: &GRAPH) -> HashSet<String> {
             map1
         }  );
 
-        let chosen_vertexes: HashSet<String> = vertexes.iter()
-            .filter(|&vertex| {
-                
+
+        let chosen_vertexes: HashSet<String> = vertexes.par_iter()
+            .filter_map(|vertex| {
+
+                let mut rng = rand::rng(); 
                 let degree = *degrees.get(vertex).unwrap() as f64;
-                if (degree == 0.0) {
-                    true
-                } else {
-                    let probability = 1.0 / (2.0 * degree);
-                    rng.random::<f64>() < probability 
-                }
+
+                if degree == 0.0 {
+                    Some(vertex.clone());
+                } 
                 
+                let probability = 1.0 / (2.0 * degree);
+
+                if rng.random::<f64>() < probability {
+                    Some(vertex.clone())
+                } else {
+                    None
+                }
             })
-            .cloned()
             .collect();
 
             
@@ -47,29 +54,22 @@ pub fn luby_algo(graph: &GRAPH) -> HashSet<String> {
         for v in &chosen_vertexes {
             for nbr in graph.get(v).unwrap() {
                 if checker.contains(nbr) {
+
                     if degrees.get(v).unwrap() > degrees.get(nbr).unwrap() 
-                    
                     {
                         checker.remove(v);
                     } else {
                         checker.remove(nbr);
                     }
+
                 }
             }
         }
 
 
-        for vertex in &checker {
-            mis.insert(vertex.clone());
-            vertexes.remove(vertex);
-            for nbr in graph.get(vertex).unwrap_or(&vec![]) {
-                vertexes.remove(nbr);
-            }
-        }
+        vertexes.retain(|v| !checker.contains(v) && !graph.get(v).unwrap_or(&vec![]).iter().any(|nbr| checker.contains(nbr)));
 
-
-
-        
+        mis.par_extend(checker);
     }
 
     mis
