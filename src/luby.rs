@@ -1,6 +1,7 @@
 use rand::Rng;
 use rayon::prelude::*;
 use std::collections::{HashMap, HashSet};
+use dashmap::DashSet;
 use rand::thread_rng;
 
 type GRAPH = HashMap<String, Vec<String>>;
@@ -69,10 +70,12 @@ pub fn luby_algo(graph: &GRAPH) -> HashSet<String> {
 
         //remove all the MIS vertex and its neighbour from vertexes
         // so that we can stop while loop
-        vertexes.retain(|v| 
-            !checker.contains(v) && !graph.get(v)
-            .unwrap_or(&vec![]).iter().any(|nbr| checker.contains(nbr)));
-
+        vertexes = vertexes.par_iter()
+            .filter(|&v| 
+                !checker.contains(v) && !graph.get(v)
+                .unwrap_or(&vec![]).iter().any(|nbr| checker.contains(nbr))
+            )
+            .cloned().collect();
 
         // add the MIS vertexes into the answer
         mis.par_extend(checker);
