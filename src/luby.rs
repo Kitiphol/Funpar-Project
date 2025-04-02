@@ -29,24 +29,24 @@ pub fn luby_algo(graph: &GRAPH) -> HashSet<String> {
 
 
         let chosen_vertexes: HashSet<String> = vertexes.par_iter()
-            .filter_map(|vertex| {
+            .filter(|&vertex| {
 
                 let mut rng = rand::rng(); 
                 let degree = *degrees.get(vertex).unwrap() as f64;
 
                 if degree == 0.0 {
-                    Some(vertex.clone());
+                    true;
                 } 
                 
                 let probability = 1.0 / (2.0 * degree);
 
                 if rng.random::<f64>() < probability {
-                    Some(vertex.clone())
+                    true
                 } else {
-                    None
+                    false
                 }
             })
-            .collect();
+            .cloned().collect();
 
             
         let mut checker = chosen_vertexes.clone();
@@ -67,8 +67,14 @@ pub fn luby_algo(graph: &GRAPH) -> HashSet<String> {
         }
 
 
-        vertexes.retain(|v| !checker.contains(v) && !graph.get(v).unwrap_or(&vec![]).iter().any(|nbr| checker.contains(nbr)));
+        //remove all the MIS vertex and its neighbour from vertexes
+        // so that we can stop while loop
+        vertexes.retain(|v| 
+            !checker.contains(v) && !graph.get(v)
+            .unwrap_or(&vec![]).iter().any(|nbr| checker.contains(nbr)));
 
+
+        // add the MIS vertexes into the answer
         mis.par_extend(checker);
     }
 
