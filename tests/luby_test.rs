@@ -1,5 +1,5 @@
 use std::collections::HashMap;
-use project::luby::{luby_algo, luby_seq};
+use project::luby::{luby_algo, luby_seq, luby_algo_par_chunck, luby_algo_par_chunck2};
 use project::luby::is_valid_mis;
 use std::time::Instant;
 use rand::seq::SliceRandom;
@@ -91,6 +91,13 @@ fn test_complex_graph() {
     println!("Sequential Luby algorithm execution time: {:?}", sequential_duration);
     assert!(is_valid_mis(&complex_graph, &mis_sequential), "Complex Graph MIS is invalid: {:?}", mis_sequential);
     println!("Test passed with sequential maximal independent set: {:?}", mis_sequential);
+
+    let start = Instant::now();
+    let mis_new = luby_algo_par_chunck(&complex_graph);
+    let duration3 = start.elapsed();
+    println!("New Algo Execution Time: {:?}", duration3);
+    assert!(is_valid_mis(&complex_graph, &mis_sequential), "Complex Graph MIS is invalid: {:?}", mis_new);
+    println!("Test passed with sequential maximal independent set: {:?}", mis_new);
 }
 
 
@@ -117,3 +124,43 @@ fn test_star_graph() {
     assert!(is_valid_mis(&star_graph, &mis_sequential), "Star Graph MIS is invalid: {:?}", mis_sequential);
     println!("Test passed with sequential maximal independent set: {:?}", mis_sequential);
 }
+
+#[test]
+fn test_large_cycle_graph() {
+    let large_cycle_graph: HashMap<String, Vec<String>> = (1..=10_000)
+        .map(|i| (format!("{}", i), vec![format!("{}", (i % 10_000) + 1), format!("{}", (i + 9_998) % 10_000 + 1)]))
+        .collect();
+
+    let start = Instant::now();
+    let mis_parallel = luby_algo(&large_cycle_graph);
+    let parallel_duration = start.elapsed();
+    assert!(is_valid_mis(&large_cycle_graph, &mis_parallel), "Large Cycle Graph MIS is invalid: {:?}", mis_parallel);
+    println!("Test passed with parallel maximal independent set on large graph: {:?}", mis_parallel);
+
+    let start = Instant::now();
+    let mis_seq = luby_seq(&large_cycle_graph);
+    let seq_dur = start.elapsed();
+    assert!(is_valid_mis(&large_cycle_graph, &mis_parallel), "Large Cycle Graph MIS is invalid: {:?}", mis_seq);
+    println!("Test passed with parallel maximal independent set on large graph: {:?}", mis_seq);
+
+    
+    
+
+    let start = Instant::now();
+    let mis_new = luby_algo_par_chunck(&large_cycle_graph);
+    let duration3 = start.elapsed();
+    
+    let start = Instant::now();
+    let mis_new = luby_algo_par_chunck2(&large_cycle_graph);
+    let duration4 = start.elapsed();
+
+    println!("\n");
+    println!("Par Chunck Algo without DashSet Execution Time: {:?}", duration3);
+    println!("Par Chunck with DashSet Execution Time: {:?}", duration4);
+    println!("Sequential Luby algorithm execution time on large graph: {:?}", seq_dur);
+    println!("Par Iter algorithm execution time on large graph: {:?}", parallel_duration);
+
+
+
+}
+

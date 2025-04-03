@@ -6,6 +6,124 @@ use std::time::Instant;
 
 type GRAPH = HashMap<String, Vec<String>>;
 
+
+pub fn luby_algo_par_chunck(graph: &GRAPH) -> HashSet<String> {
+    let mut vertexes: Vec<String> = graph.keys().cloned().collect();
+    let mut mis: HashSet<String> = HashSet::new();
+    let mut rng = rand::rng();
+    let chunk_size = vertexes.len() / 32; 
+
+    while !vertexes.is_empty() {
+        let degrees: HashMap<String, usize> = vertexes.par_chunks(chunk_size).map(|chunk| {
+            let mut local_map = HashMap::new();
+            for vertex in chunk {
+                let degree = graph.get(vertex).map_or(0, |neighbors| neighbors.len());
+                local_map.insert(vertex.clone(), degree);
+            }
+            local_map
+        }).reduce(HashMap::new, |mut map1, map2| {
+            map1.extend(map2);
+            map1
+        });
+
+        let chosen_vertexes: HashSet<String> = vertexes.par_chunks(chunk_size).flat_map(|chunk| {
+            let mut selected = Vec::new();
+            let mut rng = rand::rng();
+            for vertex in chunk {
+                let degree = *degrees.get(vertex).unwrap() as f64;
+                if degree == 0.0 || rng.random::<f64>() < 1.0 / (2.0 * degree) {
+                    selected.push(vertex.clone());
+                }
+            }
+            selected
+        }).collect();
+
+
+
+        let mut checker = chosen_vertexes.clone();
+        for v in &chosen_vertexes {
+            for nbr in graph.get(v).unwrap_or(&vec![]) {
+                if checker.contains(nbr) {
+                    if degrees.get(v).unwrap() > degrees.get(nbr).unwrap() {
+                        checker.remove(v);
+                    } else {
+                        checker.remove(nbr);
+                    }
+                }
+            }
+        }
+
+        vertexes.retain(|v| !checker.contains(v) && !graph.get(v).unwrap()
+        .iter().any(|nbr| checker.contains(nbr)));
+
+        mis.par_extend(checker);
+    }
+
+    mis
+}
+
+pub fn luby_algo_par_chunck2(graph: &GRAPH) -> HashSet<String> {
+    let mut vertexes: Vec<String> = graph.keys().cloned().collect();
+    let mut mis: HashSet<String> = HashSet::new();
+    let chunk_size = vertexes.len() / 4; 
+
+    while !vertexes.is_empty() {
+        let degrees: HashMap<String, usize> = vertexes.par_chunks(chunk_size).map(|chunk| {
+            let mut local_map = HashMap::new();
+            for vertex in chunk {
+                let degree = graph.get(vertex).map_or(0, |neighbors| neighbors.len());
+                local_map.insert(vertex.clone(), degree);
+            }
+            local_map
+        }).reduce(HashMap::new, |mut map1, map2| {
+            map1.extend(map2);
+            map1
+        });
+
+        let chosen_vertexes: HashSet<String> = vertexes.par_chunks(chunk_size).flat_map(|chunk| {
+            let mut selected = Vec::new();
+            let mut rng = rand::rng();
+            for vertex in chunk {
+                let degree = *degrees.get(vertex).unwrap() as f64;
+                if degree == 0.0 || rng.random::<f64>() < 1.0 / (2.0 * degree) {
+                    selected.push(vertex.clone());
+                }
+            }
+            selected
+        }).collect();
+
+        
+
+        let checker = DashSet::new();
+            for vertex in &chosen_vertexes {
+                checker.insert(vertex.clone());
+            }
+            
+            chosen_vertexes.par_iter().for_each(|v| {
+                if let Some(neighbors) = graph.get(v) {
+                    for nbr in neighbors {
+                        if checker.contains(nbr) {
+                            let degree_v = *degrees.get(v).unwrap();
+                            let degree_nbr = *degrees.get(nbr).unwrap();
+                            if degree_v > degree_nbr {
+                                checker.remove(v);
+                            } else {
+                                checker.remove(nbr);
+                            }
+                        }
+                    }
+                }
+            });
+
+        vertexes.retain(|v| !checker.contains(v) && !graph.get(v).unwrap()
+        .iter().any(|nbr| checker.contains(nbr)));
+        mis.extend(checker);
+    }
+
+    mis
+}
+
+
 pub fn luby_algo(graph: &GRAPH) -> HashSet<String> {
 
 
@@ -50,22 +168,26 @@ pub fn luby_algo(graph: &GRAPH) -> HashSet<String> {
             .cloned().collect();
 
             
-        let mut checker = chosen_vertexes.clone();
-
-        for v in &chosen_vertexes {
-            for nbr in graph.get(v).unwrap() {
-                if checker.contains(nbr) {
-
-                    if degrees.get(v).unwrap() > degrees.get(nbr).unwrap() 
-                    {
-                        checker.remove(v);
-                    } else {
-                        checker.remove(nbr);
-                    }
-
-                }
+            let checker = DashSet::new();
+            for vertex in &chosen_vertexes {
+                checker.insert(vertex.clone());
             }
-        }
+            
+            chosen_vertexes.par_iter().for_each(|v| {
+                if let Some(neighbors) = graph.get(v) {
+                    for nbr in neighbors {
+                        if checker.contains(nbr) {
+                            let degree_v = *degrees.get(v).unwrap();
+                            let degree_nbr = *degrees.get(nbr).unwrap();
+                            if degree_v > degree_nbr {
+                                checker.remove(v);
+                            } else {
+                                checker.remove(nbr);
+                            }
+                        }
+                    }
+                }
+            });
 
 
         //remove all the MIS vertex and its neighbour from vertexes
@@ -78,7 +200,7 @@ pub fn luby_algo(graph: &GRAPH) -> HashSet<String> {
             .cloned().collect();
 
         // add the MIS vertexes into the answer
-        mis.par_extend(checker);
+        mis.par_extend(checker.into_iter().collect::<Vec<String>>());
     }
 
     mis
@@ -170,6 +292,7 @@ pub fn luby_seq(graph: &GRAPH) -> HashSet<String> {
 
 pub fn is_valid_mis(graph: &HashMap<String, Vec<String>>, mis: &HashSet<String>) -> bool {
     
+    //ensure that 2 adjacent nodes are not in the MIS
     for node in mis {
         if let Some(neighbors) = graph.get(node) {
             for neighbor in neighbors {
@@ -180,6 +303,7 @@ pub fn is_valid_mis(graph: &HashMap<String, Vec<String>>, mis: &HashSet<String>)
         }
     }
     
+    //check that for each not present node make sure that there's at least one neighbour present in MIS
     for (node, neighbors) in graph {
         if !mis.contains(node) && !neighbors.iter().any(|nbr| mis.contains(nbr)) {
             return false; 
