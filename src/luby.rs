@@ -6,7 +6,6 @@ use std::time::Instant;
 
 type GRAPH = HashMap<String, Vec<String>>;
 
-
 pub fn luby_algo_par_chunck(graph: &GRAPH) -> HashSet<String> {
     let mut vertexes: Vec<String> = graph.keys().cloned().collect();
     let mut mis: HashSet<String> = HashSet::new();
@@ -15,18 +14,13 @@ pub fn luby_algo_par_chunck(graph: &GRAPH) -> HashSet<String> {
 
     while !vertexes.is_empty() {
 
-        
-        let degrees: HashMap<String, usize> = vertexes.par_chunks(chunk_size).map(|chunk| {
-            let mut local_map = HashMap::new();
-            for vertex in chunk {
-                let degree = graph.get(vertex).map_or(0, |neighbors| neighbors.len());
-                local_map.insert(vertex.clone(), degree);
-            }
-            local_map
-        }).reduce(HashMap::new, |mut map1, map2| {
-            map1.extend(map2);
-            map1
-        });
+       let start = Instant::now();
+        let degrees: HashMap<String, usize> = vertexes.par_iter().map( |vertex: &String| {
+            let degree = graph.get(vertex).unwrap().len();
+            (vertex.clone(), degree)
+        }).collect();
+        let duration4 = start.elapsed();
+        println!(" The degree parallel: {:?}", start.elapsed());
 
         let chosen_vertexes: HashSet<String> = vertexes.par_chunks(chunk_size).flat_map(|chunk| {
             let mut selected = Vec::new();
@@ -39,8 +33,6 @@ pub fn luby_algo_par_chunck(graph: &GRAPH) -> HashSet<String> {
             }
             selected
         }).collect();
-
-
 
         let mut checker = chosen_vertexes.clone();
 
@@ -149,7 +141,6 @@ pub fn luby_algo_par_chunck2(graph: &GRAPH) -> HashSet<String> {
     mis
 }
 
-
 pub fn luby_algo(graph: &GRAPH) -> HashSet<String> {
 
 
@@ -161,17 +152,10 @@ pub fn luby_algo(graph: &GRAPH) -> HashSet<String> {
 
         let length = graph.len();
 
-        let degrees: HashMap<String, usize> = vertexes.par_iter().fold(
-            || HashMap::new(), |mut local_map, vertex| {
-                let degree = graph.get(vertex).iter().len();
-                local_map.insert(vertex.clone(), degree);
-                local_map
-            }
-        ).reduce(|| HashMap::new(), |mut map1, map2| {
-            map1.extend(map2);
-            map1
-        }  );
-
+        let degrees: HashMap<String, usize> = vertexes.par_iter().map( |vertex: &String| {
+            let degree = graph.get(vertex).unwrap().len();
+            (vertex.clone(), degree)
+        }).collect();
 
         let chosen_vertexes: HashSet<String> = vertexes.par_iter()
             .filter(|&vertex| {
@@ -232,10 +216,6 @@ pub fn luby_algo(graph: &GRAPH) -> HashSet<String> {
     mis
 }
 
-
-
-
-
 pub fn luby_seq(graph: &GRAPH) -> HashSet<String> {
 
 
@@ -284,7 +264,7 @@ pub fn luby_seq(graph: &GRAPH) -> HashSet<String> {
             .collect();
 
         let duration1 = start.elapsed();
-        println!("The duration for randomly selecting vertex : {:?}", duration1);
+        // println!("The duration for randomly selecting vertex : {:?}", duration1);
 
 
 
@@ -310,7 +290,7 @@ pub fn luby_seq(graph: &GRAPH) -> HashSet<String> {
 
         }
         let duration3 = start.elapsed();
-        println!("The duration for removing the adjacent vertex in par chunck : {:?}", duration3);
+        // println!("The duration for removing the adjacent vertex in par chunck : {:?}", duration3);
 
 
 
@@ -326,7 +306,7 @@ pub fn luby_seq(graph: &GRAPH) -> HashSet<String> {
         }
 
         let duration4 = start.elapsed();
-        println!("The duration for removing vertexes in the vertexes in sequential and adding the ans : {:?}", duration4);
+        // println!("The duration for removing vertexes in the vertexes in sequential and adding the ans : {:?}", duration4);
 
 
 
@@ -337,7 +317,6 @@ pub fn luby_seq(graph: &GRAPH) -> HashSet<String> {
 
     mis
 }
-
 
 pub fn is_valid_mis(graph: &HashMap<String, Vec<String>>, mis: &HashSet<String>) -> bool {
     

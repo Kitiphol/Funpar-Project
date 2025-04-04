@@ -16,7 +16,7 @@ fn test_normal_graph() {
     ]);
 
     let start = Instant::now();
-    let mis_parallel = luby_algo_par_chunck2(&graph);
+    let mis_parallel = luby_algo(&graph);
     let parallel_duration = start.elapsed();
     println!("Parallel Luby algorithm execution time: {:?}", parallel_duration);
 
@@ -150,13 +150,13 @@ fn test_large_cycle_graph() {
     let mis_new = luby_algo_par_chunck(&large_cycle_graph);
     let duration3 = start.elapsed();
     
-    let start = Instant::now();
-    let mis_new = luby_algo_par_chunck2(&large_cycle_graph);
-    let duration4 = start.elapsed();
+    // let start = Instant::now();
+    // let mis_new = luby_algo_par_chunck2(&large_cycle_graph);
+    // let duration4 = start.elapsed();
 
     println!("\n");
     println!("Par Chunck Algo without DashSet Execution Time: {:?}", duration3);
-    println!("Par Chunck with DashSet Execution Time: {:?}", duration4);
+    // println!("Par Chunck with DashSet Execution Time: {:?}", duration4);
     println!("Sequential Luby algorithm execution time on large graph: {:?}", seq_dur);
     println!("Par Iter algorithm execution time on large graph: {:?}", parallel_duration);
 
