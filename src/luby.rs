@@ -14,6 +14,8 @@ pub fn luby_algo_par_chunck(graph: &GRAPH) -> HashSet<String> {
     let chunk_size = vertexes.len() / 32; 
 
     while !vertexes.is_empty() {
+
+        
         let degrees: HashMap<String, usize> = vertexes.par_chunks(chunk_size).map(|chunk| {
             let mut local_map = HashMap::new();
             for vertex in chunk {
@@ -41,6 +43,7 @@ pub fn luby_algo_par_chunck(graph: &GRAPH) -> HashSet<String> {
 
 
         let mut checker = chosen_vertexes.clone();
+
         for v in &chosen_vertexes {
             for nbr in graph.get(v).unwrap_or(&vec![]) {
                 if checker.contains(nbr) {
@@ -68,6 +71,9 @@ pub fn luby_algo_par_chunck2(graph: &GRAPH) -> HashSet<String> {
     let chunk_size = vertexes.len() / 4; 
 
     while !vertexes.is_empty() {
+
+        let start = Instant::now();
+
         let degrees: HashMap<String, usize> = vertexes.par_chunks(chunk_size).map(|chunk| {
             let mut local_map = HashMap::new();
             for vertex in chunk {
@@ -79,6 +85,11 @@ pub fn luby_algo_par_chunck2(graph: &GRAPH) -> HashSet<String> {
             map1.extend(map2);
             map1
         });
+
+        let duration1 = start.elapsed();
+        println!("The duration for making degrees in par chunck : {:?}", duration1);
+        
+        let start = Instant::now();
 
         let chosen_vertexes: HashSet<String> = vertexes.par_chunks(chunk_size).flat_map(|chunk| {
             let mut selected = Vec::new();
@@ -92,7 +103,11 @@ pub fn luby_algo_par_chunck2(graph: &GRAPH) -> HashSet<String> {
             selected
         }).collect();
 
-        
+        let duration2 = start.elapsed();
+        println!("The duration for selecting the vertex randomly in par chunck : {:?}", duration2);
+
+
+        let start = Instant::now();
 
         let checker = DashSet::new();
             for vertex in &chosen_vertexes {
@@ -114,10 +129,21 @@ pub fn luby_algo_par_chunck2(graph: &GRAPH) -> HashSet<String> {
                     }
                 }
             });
+            let duration3 = start.elapsed();
+            println!("The duration for removing the adjacent vertex in par chunck : {:?}", duration3);
 
+            
+        let start = Instant::now();
         vertexes.retain(|v| !checker.contains(v) && !graph.get(v).unwrap()
         .iter().any(|nbr| checker.contains(nbr)));
+
+        let duration4 = start.elapsed();
+        println!("The duration for removing vertexes in the vertexes in par chunck : {:?}", duration4);
+
+        let start = Instant::now();
         mis.extend(checker);
+        let duration = start.elapsed();
+        println!("Putting the vertexes into the answer in parallel: {:?}", duration);
     }
 
     mis
@@ -223,7 +249,7 @@ pub fn luby_seq(graph: &GRAPH) -> HashSet<String> {
 
 
 
-
+        let start = Instant::now();
 
 
 
@@ -235,6 +261,12 @@ pub fn luby_seq(graph: &GRAPH) -> HashSet<String> {
 
 
         }).collect();
+
+        let duration1 = start.elapsed();
+        println!("The duration for making degrees sequentially : {:?}", duration1);
+        
+
+        let start = Instant::now();
 
         let chosen_vertexes: HashSet<String> = vertexes.iter()
             .filter(|&vertex| {
@@ -250,6 +282,13 @@ pub fn luby_seq(graph: &GRAPH) -> HashSet<String> {
             })
             .cloned()
             .collect();
+
+        let duration1 = start.elapsed();
+        println!("The duration for randomly selecting vertex : {:?}", duration1);
+
+
+
+        let start = Instant::now();
 
         let mut checker = chosen_vertexes.clone();
 
@@ -269,10 +308,15 @@ pub fn luby_seq(graph: &GRAPH) -> HashSet<String> {
             }
 
 
-
         }
+        let duration3 = start.elapsed();
+        println!("The duration for removing the adjacent vertex in par chunck : {:?}", duration3);
 
 
+
+
+
+        let start = Instant::now();
         for vertex in &checker {
             mis.insert(vertex.clone());
             vertexes.remove(vertex);
@@ -280,6 +324,11 @@ pub fn luby_seq(graph: &GRAPH) -> HashSet<String> {
                 vertexes.remove(nbr);
             }
         }
+
+        let duration4 = start.elapsed();
+        println!("The duration for removing vertexes in the vertexes in sequential and adding the ans : {:?}", duration4);
+
+
 
 
 

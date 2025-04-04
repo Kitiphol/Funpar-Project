@@ -16,7 +16,7 @@ fn test_normal_graph() {
     ]);
 
     let start = Instant::now();
-    let mis_parallel = luby_algo(&graph);
+    let mis_parallel = luby_algo_par_chunck2(&graph);
     let parallel_duration = start.elapsed();
     println!("Parallel Luby algorithm execution time: {:?}", parallel_duration);
 
@@ -135,13 +135,13 @@ fn test_large_cycle_graph() {
     let mis_parallel = luby_algo(&large_cycle_graph);
     let parallel_duration = start.elapsed();
     assert!(is_valid_mis(&large_cycle_graph, &mis_parallel), "Large Cycle Graph MIS is invalid: {:?}", mis_parallel);
-    println!("Test passed with parallel maximal independent set on large graph: {:?}", mis_parallel);
+    // println!("Test passed with parallel maximal independent set on large graph: {:?}", mis_parallel);
 
     let start = Instant::now();
     let mis_seq = luby_seq(&large_cycle_graph);
     let seq_dur = start.elapsed();
     assert!(is_valid_mis(&large_cycle_graph, &mis_parallel), "Large Cycle Graph MIS is invalid: {:?}", mis_seq);
-    println!("Test passed with parallel maximal independent set on large graph: {:?}", mis_seq);
+    // println!("Test passed with parallel maximal independent set on large graph: {:?}", mis_seq);
 
     
     
